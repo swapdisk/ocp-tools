@@ -15,16 +15,16 @@
 SSH_KEY_NAME=~/".ssh/id_rsa"
 
 # How long this script will serve the pub key (in seconds) - one day is 86400.
-# If set to 0 or variable unset, script will never kill webserver
+# If set to 0 , script will never kill webserver
 #AVAILABLE_KEY_TIME="0" # do not kill webserver
-#AVAILABLE_KEY_TIME="86400"
-AVAILABLE_KEY_TIME="60"
+#AVAILABLE_KEY_TIME="60"
+AVAILABLE_KEY_TIME="86400"
 
 # http port (nodes will need to know this port to collect the pubkey)
 HTTP_PORT=6666
 
 # non-privilege user to run the webserver. If not set, webserver will run as root
-# needs to be coded
+# Still need to be coded
 #NON_PRIV_USER=whatever
 
 # temp directory for the webserver (please never serve the public key on the same directory of the private key)
@@ -36,6 +36,8 @@ if [ "$EUID" -ne 0 ]; then
   echo "This script needs to be executed as root"
   exit 1
 fi
+
+command -v python >/dev/null 2>&1 || { echo >&2 "I require python but it's not installed.  Aborting."; exit 1; }
 
 # generate the key if it does not exist
 if [ ! -f $SSH_KEY_NAME ]; then
