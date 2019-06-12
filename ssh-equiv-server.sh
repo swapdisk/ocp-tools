@@ -8,6 +8,7 @@
 # https://github.com/brito-rafa/ocp-tools
 
 # Dependencies: python3 
+# assumes there is firewalld running
 
 # Parameters
 # set your ssh key name if you do not want the default
@@ -54,7 +55,7 @@ export WEBPID=`pidof python3 -m http.server`
 
 # Kill webserver only if parameter AVAILABLE_KEY_TIME is not "0"
 if [ ! ${AVAILABLE_KEY_TIME} = "0" ]; then
-  $(sleep $AVAILABLE_KEY_TIME; kill $WEBPID) &
+  $(sleep $AVAILABLE_KEY_TIME; kill $WEBPID; firewall-cmd --zone=public --remove-port=$HTTP_PORT/tcp) &
 fi
 
 
