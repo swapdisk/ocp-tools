@@ -23,6 +23,9 @@ AVAILABLE_KEY_TIME="86400"
 # http port (nodes will need to know this port to collect the pubkey)
 HTTP_PORT=6666
 
+# enable the port using firewalld
+firewall-cmd --zone=public --add-port=$HTTP_PORT/tcp
+
 # temp directory for the webserver (please never serve the public key on the same directory of the private key)
 TEMP_DIR=/tmp/adminpubkey
 
@@ -55,9 +58,7 @@ if [ ! ${AVAILABLE_KEY_TIME} = "0" ]; then
 fi
 
 
-########## on the nodes, as root, run the following. replace "admin-node" for the ip or hostname of the admin node
-# HTTP_PORT=6666
-# SSH_KEY_PUBNAME="id_rsa.pub"
-# curl http://admin-node:${HTTP_PORT}/${SSH_KEY_PUBNAME} >> ~/.ssh/authorized_keys
-# chmod 0600 ~/.ssh/authorized_keys
+########## on the nodes, as root, run the following. set ADMIN_NODE for the ip or hostname of the admin node
+# ADMIN_NOME=<IP_or_FQDN>
+# HTTP_PORT=6666; SSH_KEY_PUBNAME="id_rsa.pub"; mkdir -p ~/.ssh; wget --retry-connrefused --waitretry=60 --read-timeout=20 --timeout=15 -t 30 http://$ADMIN_NODE:$HTTP_PORT/$SSH_KEY_PUBNAME -O - >> ~/.ssh/authorized_keys; chmod 0400 ~/.ssh/authorized_keys
 ##########
