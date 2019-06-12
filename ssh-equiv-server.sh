@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Script to generate a ssh key pair and run a webserver to share the public key within a period of time
+# Script to generate a ssh key pair and run a webserver (non-privilege) to share the public key within a period of time
 # Simple automation for setup root ssh equivalence on a brand new OCP cluster
 # This code to be run as root on the admin node as one time execution when it is built 
 # Use at your own risk
 
 # https://github.com/brito-rafa/ocp-tools
 
-# Dependencies: python and SimpleHTTPServer module
+# Dependencies: python3 
 
 # Parameters
 # set your ssh key name if you do not want the default
@@ -23,10 +23,6 @@ AVAILABLE_KEY_TIME="86400"
 # http port (nodes will need to know this port to collect the pubkey)
 HTTP_PORT=6666
 
-# non-privilege user to run the webserver. If not set, webserver will run as root
-# Still need to be coded
-#NON_PRIV_USER=whatever
-
 # temp directory for the webserver (please never serve the public key on the same directory of the private key)
 TEMP_DIR=/tmp/adminpubkey
 
@@ -37,7 +33,7 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-command -v python >/dev/null 2>&1 || { echo >&2 "I require python but it's not installed.  Aborting."; exit 1; }
+command -v python3 >/dev/null 2>&1 || { echo >&2 "I require python3 but it's not installed.  Aborting."; exit 1; }
 
 # generate the key if it does not exist
 if [ ! -f $SSH_KEY_NAME ]; then
@@ -48,10 +44,10 @@ fi
 mkdir -p $TEMP_DIR
 cp -p ${SSH_KEY_NAME}.pub $TEMP_DIR
 
-# start webserver in background as a non privileged user (TBD)
+# start webserver in background as a non privileged user "bin" - change if you wish
 cd $TEMP_DIR
-python -m SimpleHTTPServer $HTTP_PORT &
-export WEBPID=$!
+sudo -H -u bin bash -c "(python3 -m http.server $HTTP_PORT &)"
+export WEBPID=`pidof python3 -m http.server`
 
 # Kill webserver only if parameter AVAILABLE_KEY_TIME is not "0"
 if [ ! ${AVAILABLE_KEY_TIME} = "0" ]; then
